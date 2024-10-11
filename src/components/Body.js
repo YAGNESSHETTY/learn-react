@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import Shimmer from "./Shimmer";
 export const Body = () => {
     let [resList , setResList] = useState([]) ;
+    let [filterResList , setFilterResList] = useState([]) ;
+    let [searchText , setSearchText] = useState("") ;
 
     useEffect( () => {
         fetchData() ;
@@ -18,9 +20,10 @@ export const Body = () => {
         console.log(json)  ;
         let newResList = (json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants) ;
         setResList(newResList) ;
+        setFilterResList(newResList) ;
 
     } ;
-    console.log(resList.length) ;
+
     if(resList.length === 0){
         return <Shimmer/>;
     }
@@ -28,17 +31,31 @@ export const Body = () => {
     return (
         <div className='body'>
             <div className='filter'>
+                <div className="search">
+                    <input type="text" className="search-box" value={searchText} 
+                    onChange={ (e)=>{
+                        setSearchText(e.target.value) ;
+                    } }>
+                    </input>
+                    <button onClick={ ()=>{
+                        const filteredRes = resList.filter( (res)=>{
+                            return res.info.name.toLowerCase().includes(searchText.toLowerCase()) 
+                        }) ;
+                        setFilterResList(filteredRes) ;
+                    }}>
+                        Search
+                    </button>
+                </div>
                 <button className="filter-btn" onClick={()=>{
                     console.log(resList);
                     const newReslist = resList.filter((res)=> res.info.avgRating > 4) ;
-                    console.log(newReslist);
-                    setResList(newReslist) ;
+                    setFilterResList(newReslist) ;
                 }}
                 >Top Rated Restaurants</button>
             </div>
             <div className='res-container'>
                 {
-                    resList.map((restaurant) => <RestaurantCard key={restaurant.info.id} resData = {restaurant}/> )
+                    filterResList.map((restaurant) => <RestaurantCard key={restaurant.info.id} resData = {restaurant}/> )
                 }
             </div>
         </div>
